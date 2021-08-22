@@ -1,0 +1,29 @@
+{
+  "name": "figma_search_bot",
+  "version": "0.0.0",
+  "description": "Telegram bot for Figma components & frames search",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Bushizzle/figma_search_bot.git"
+  },
+  "keywords": [
+    "telegram",
+    "figma",
+    "search"
+  ],
+  "author": "Alexander Bushmanov @bushizzle",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Bushizzle/figma_search_bot/issues"
+  },
+  "homepage": "https://github.com/Bushizzle/figma_search_bot#readme",
+  "dependencies": {
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
+    "node-telegram-bot-api": "^0.54.0"
+  }
+}
