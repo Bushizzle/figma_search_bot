@@ -1,0 +1,8 @@
+{
+  "NODE_TYPES": ["FRAME", "COMPONENT", "DOCUMENT"],
+  "DICTIONARY": {
+    "FRAME": "Frames",
+    "COMPONENT": "Components",
+    "DOCUMENT": "Documents"
+  }
+}
