@@ -1,9 +1,10 @@
 require("dotenv").config();
+const fs = require('fs');
 const fetch = require('node-fetch');
 const TEAM_ID = process.env.FIGMA_TEAM_ID;
 // https://www.figma.com/files/project/22493983/Project-1?fuid=932981805559254714
 const PROJECTS_IDS = process.env.FIGMA_PROJECTS.split(',');
-const { NODE_TYPES, DICTIONARY } = require('./config.json');
+const { NODE_TYPES, DICTIONARY, DATA_FOLDER } = require('./config.json');
 const FIGMA_TOKEN = process.env.FIGMA_TOKEN;
 
 if (!String.prototype.replaceAll) {
@@ -47,11 +48,12 @@ const loadDocuments = async () => {
 
     const documents = await Promise.all(
         files.map(({key}) => {
+            const file = fs.createWriteStream(`${DATA_FOLDER}/${key}.json`);
             return fetch(`https://api.figma.com/v1/files/${key}`, {
                 headers: {
                     Authorization: `Bearer ${FIGMA_TOKEN}`,
                 },
-            }).then(res => res.json());
+            }).then(res => res.body.pipe(file));
         })
     );
 

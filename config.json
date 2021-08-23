@@ -4,5 +4,6 @@
     "FRAME": "Frames",
     "COMPONENT": "Components",
     "DOCUMENT": "Documents"
-  }
+  },
+  "DATA_FOLDER": "/projects-data"
 }
