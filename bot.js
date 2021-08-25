@@ -1,7 +1,12 @@
 require("dotenv").config();
+const fs = require('fs');
 const token = process.env.TELEGRAM_TOKEN;
 const figma = require('./figma');
 const Bot = require('node-telegram-bot-api');
+const JSONStream = require('JSONStream');
+const  es = require('event-stream');
+
+
 let bot;
 
 if(process.env.NODE_ENV === 'production') {

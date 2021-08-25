@@ -1,6 +1,8 @@
 require("dotenv").config();
-const fs = require('fs');
 const fetch = require('node-fetch');
+const fs = require('fs');
+const JSONStream = require('JSONStream');
+const es = require('event-stream');
 const TEAM_ID = process.env.FIGMA_TEAM_ID;
 // https://www.figma.com/files/project/22493983/Project-1?fuid=932981805559254714
 const PROJECTS_IDS = process.env.FIGMA_PROJECTS.split(',');
@@ -9,15 +11,10 @@ const FIGMA_TOKEN = process.env.FIGMA_TOKEN;
 
 if (!String.prototype.replaceAll) {
     String.prototype.replaceAll = function(str, newStr){
-
-        // If a regex pattern
         if (Object.prototype.toString.call(str).toLowerCase() === '[object regexp]') {
             return this.replace(str, newStr);
         }
-
-        // If a string
         return this.replace(new RegExp(str, 'g'), newStr);
-
     };
 }
 
@@ -25,8 +22,6 @@ const loadDocuments = async () => {
     const team = await fetch(`https://api.figma.com/v1/teams/${TEAM_ID}/projects`, {
         headers: {
             Authorization: `Bearer ${FIGMA_TOKEN}`,
-            // "Access-Control-Allow-Origin": "*",
-            // "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept",
         },
     }).then(res => res.json());
     console.log('Teams data loaded successfully. Loading projects...');
@@ -47,14 +42,37 @@ const loadDocuments = async () => {
     const files = projects.reduce((res, project) => [...res, ...project.files], []);
 
     const documents = await Promise.all(
-        files.map(({key}) => {
-            const file = fs.createWriteStream(`${DATA_FOLDER}/${key}.json`);
-            return fetch(`https://api.figma.com/v1/files/${key}`, {
-                headers: {
-                    Authorization: `Bearer ${FIGMA_TOKEN}`,
-                },
-            }).then(res => res.body.pipe(file));
-        })
+        files
+            .slice(0,1)
+            .map(({key}) => {
+                const path = `${DATA_FOLDER}/${key}.json`;
+                const writeStream = fs.createWriteStream(path);
+                return fetch(`https://api.figma.com/v1/files/${key}`, {
+                    headers: {
+                        Authorization: `Bearer ${FIGMA_TOKEN}`,
+                    },
+                }).then(res => {
+                    res.body.pipe(writeStream);
+                    return new Promise((resolve) => {
+                        writeStream.on("finish", () => {
+                            console.log(`${key}.json downloaded and saved`);
+                            resolve();
+                        });
+                    })
+                }).then(() => {
+                    const readStream = fs.createReadStream(path);
+                    return new Promise((resolve) => {
+                        readStream.on('open', function () {
+                            readStream
+                                .pipe(JSONStream.parse())
+                                .pipe(es.mapSync(function (data) {
+                                    resolve(data);
+                                }))
+                        });
+                    })
+                });
+            }
+        )
     );
 
     console.log(`${documents.length} documents data loaded successfully, app is ready to go`);
