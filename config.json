@@ -5,5 +5,5 @@
     "COMPONENT": "Components",
     "DOCUMENT": "Documents"
   },
-  "DATA_FOLDER": "/projects-data"
+  "DATA_FOLDER": "./projects-data"
 }
